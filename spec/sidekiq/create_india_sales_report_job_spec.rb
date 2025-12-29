@@ -135,6 +135,7 @@ describe CreateIndiaSalesReportJob do
                                         "ID",
                                         "Date",
                                         "Place of Supply (State)",
+                                        "Buyer GSTIN",
                                         "Zip Tax Rate (%) (Rate from Database)",
                                         "Taxable Value (cents)",
                                         "Integrated Tax Amount (cents)",
@@ -148,23 +149,24 @@ describe CreateIndiaSalesReportJob do
       expect(actual_payload.length).to eq(2)
 
       data_row = actual_payload[1]
-
       expect(data_row[0]).to eq(@india_purchase.external_id)  # ID
       expect(data_row[1]).to eq("2023-06-15")                 # Date
       expect(data_row[2]).to eq("MH")                         # Place of Supply (State)
-      expect(data_row[3]).to eq("18")                         # Zip Tax Rate (%) (Rate from Database)
-      expect(data_row[4]).to eq("1000")                       # Taxable Value (cents)
-      expect(data_row[5]).to eq("180")                        # Integrated Tax Amount (cents) - gumroad_tax_cents is 180
-      expect(data_row[6]).to eq("18.0")                       # Tax Rate (%) (Calculated From Tax Collected) - (180/1000 * 100) = 18.0
-      expect(data_row[7]).to eq("180")                        # Expected Tax (cents, rounded) - (1000 * 0.18).round = 180
-      expect(data_row[8]).to eq("180")                        # Expected Tax (cents, floored) - (1000 * 0.18).floor = 180
-      expect(data_row[9]).to eq("0")                          # Tax Difference (rounded) - 180 - 180 = 0
-      expect(data_row[10]).to eq("0")                         # Tax Difference (floored) - 180 - 180 = 0
+      expect(data_row[3]).to eq("")                           # Buyer Tax ID (GSTIN) - empty for this purchase
+      expect(data_row[4]).to eq("18")                         # Zip Tax Rate (%) (Rate from Database)
+      expect(data_row[5]).to eq("1000")                       # Taxable Value (cents)
+      expect(data_row[6]).to eq("180")                        # Integrated Tax Amount (cents) - gumroad_tax_cents is 180
+      expect(data_row[7]).to eq("18.0")                       # Tax Rate (%) (Calculated From Tax Collected) - (180/1000 * 100) = 18.0
+      expect(data_row[8]).to eq("180")                        # Expected Tax (cents, rounded) - (1000 * 0.18).round = 180
+      expect(data_row[9]).to eq("180")                        # Expected Tax (cents, floored) - (1000 * 0.18).floor = 180
+      expect(data_row[10]).to eq("0")                         # Tax Difference (rounded) - 180 - 180 = 0
+      expect(data_row[11]).to eq("0")                         # Tax Difference (floored) - 180 - 180 = 0
+
 
       temp_file.close(true)
     end
 
-    it "excludes purchases with business VAT ID" do
+    it "excludes purchases with business VAT ID and display GSTIN" do
       expect(s3_bucket_double).to receive(:object).and_return(@s3_object)
 
       described_class.new.perform(6, 2023)
@@ -210,17 +212,16 @@ describe CreateIndiaSalesReportJob do
       expect(invalid_state_row).to be_present
 
       # Check all column values for invalid state purchase
-      expect(invalid_state_row[0]).to eq(invalid_state_purchase.external_id)  # ID
-      expect(invalid_state_row[1]).to eq("2023-06-15")                        # Date
       expect(invalid_state_row[2]).to eq("")                                  # Place of Supply (State) - empty for invalid state
-      expect(invalid_state_row[3]).to eq("18")                                # Zip Tax Rate (%) (Rate from Database)
-      expect(invalid_state_row[4]).to eq("500")                               # Taxable Value (cents)
-      expect(invalid_state_row[5]).to eq("0")                                 # Integrated Tax Amount (cents) - gumroad_tax_cents is 0 for test purchase
-      expect(invalid_state_row[6]).to eq("0")                                 # Tax Rate (%) (Calculated From Tax Collected) - 0 since no tax collected
-      expect(invalid_state_row[7]).to eq("90")                                # Expected Tax (cents, rounded) - (500 * 0.18).round = 90
-      expect(invalid_state_row[8]).to eq("90")                                # Expected Tax (cents, floored) - (500 * 0.18).floor = 90
-      expect(invalid_state_row[9]).to eq("90")                                # Tax Difference (rounded) - 90 - 0 = 90
-      expect(invalid_state_row[10]).to eq("90")                               # Tax Difference (floored) - 90 - 0 = 90
+      expect(invalid_state_row[3]).to eq("")                                  # Buyer Tax ID (GSTIN) - empty for this purchase
+      expect(invalid_state_row[4]).to eq("18")                                # Zip Tax Rate (%) (Rate from Database)
+      expect(invalid_state_row[5]).to eq("500")                               # Taxable Value (cents)
+      expect(invalid_state_row[6]).to eq("0")                                 # Integrated Tax Amount (cents) - gumroad_tax_cents is 0 for test purchase
+      expect(invalid_state_row[7]).to eq("0")                                 # Tax Rate (%) (Calculated From Tax Collected) - 0 since no tax collected
+      expect(invalid_state_row[8]).to eq("90")                                # Expected Tax (cents, rounded) - (500 * 0.18).round = 90
+      expect(invalid_state_row[9]).to eq("90")                                # Expected Tax (cents, floored) - (500 * 0.18).floor = 90
+      expect(invalid_state_row[10]).to eq("90")                               # Tax Difference (rounded) - 90 - 0 = 90
+      expect(invalid_state_row[11]).to eq("90")                               # Tax Difference (floored) - 90 - 0 = 90
 
       temp_file.close(true)
     end

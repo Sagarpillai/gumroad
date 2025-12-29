@@ -68,10 +68,12 @@ class CreateIndiaSalesReportJob
             0
           end
 
+          buyer_gstin = purchase.purchase_sales_tax_info&.business_vat_id
           row = [
             purchase.external_id,
             purchase.created_at.strftime("%Y-%m-%d"),
             display_state,
+            buyer_gstin,
             india_tax_rate_percentage,
             price_cents,
             tax_amount_cents,
@@ -104,6 +106,7 @@ class CreateIndiaSalesReportJob
         "ID",
         "Date",
         "Place of Supply (State)",
+        "Buyer GSTIN",
         "Zip Tax Rate (%) (Rate from Database)",
         "Taxable Value (cents)",
         "Integrated Tax Amount (cents)",
