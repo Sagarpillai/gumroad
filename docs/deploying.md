@@ -19,6 +19,11 @@
 
 Deployments are automated. When Buildkite builds the `main` branch, it will automatically deploy it to production. The rest of this section explains how deployments can be performed outside of this automated process.
 
+## Platform-specific guides
+
+- [Deploying on Heroku](deploying_heroku.md)
+- [Deploying on Railway](deploying_railway.md)
+
 ### Prerequisites
 
 Before deploying, make sure you have the `nomad/.env` environment variables file with [these credentials](https://antiwork.1password.com/vaults/xecpqop3ylrsq6zz53klqaaoxq/allitems/qyenwnmcuidk6gzvppa4weagmm).
