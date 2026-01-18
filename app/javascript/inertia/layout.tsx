@@ -41,7 +41,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div id="inertia-shell" className="flex h-screen flex-col lg:flex-row">
           {logged_in_user ? <Nav title="Dashboard" /> : null}
 
-          {/* We add scroll-region="true" so Inertia knows this is the scrollable area */}
           <main
             id="main-content"
             scroll-region="true"
