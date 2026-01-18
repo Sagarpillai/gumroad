@@ -1,8 +1,6 @@
 import { Head, usePage } from "@inertiajs/react";
 import React from "react";
 
-import { classNames } from "$app/utils/classNames";
-
 import { Nav } from "$app/components/client-components/Nav";
 import { CurrentSellerProvider, parseCurrentSeller } from "$app/components/CurrentSeller";
 import LoadingSkeleton from "$app/components/LoadingSkeleton";
@@ -35,7 +33,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const isRouteLoading = useRouteLoading();
 
   useFlashMessage(flash);
-
   return (
     <LoggedInUserProvider value={parseLoggedInUser(logged_in_user)}>
       <CurrentSellerProvider value={parseCurrentSeller(current_seller)}>
@@ -43,8 +40,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <Alert initial={null} />
         <div id="inertia-shell" className="flex h-screen flex-col lg:flex-row">
           {logged_in_user ? <Nav title="Dashboard" /> : null}
-          {isRouteLoading ? <LoadingSkeleton /> : null}
-          <main className={classNames("flex-1 overflow-y-auto", { hidden: isRouteLoading })}>{children}</main>
+
+          {/* We add scroll-region="true" so Inertia knows this is the scrollable area */}
+          <main
+            id="main-content"
+            scroll-region="true"
+            className="flex-1 overflow-y-auto"
+          >
+            {isRouteLoading ? <LoadingSkeleton /> : children}
+          </main>
         </div>
       </CurrentSellerProvider>
     </LoggedInUserProvider>
